@@ -137,8 +137,11 @@ void Environment::run() {
     // }
     // else if (cmd == 0x20) { // JR NZ,r8 | 2  12/8 | - - - -
     // }
-    // else if (cmd == 0x21) { // LD HL,d16 | 3  12 | - - - -
-    // }
+    else if (cmd == 0x21) { // LD HL,d16 | 3  12 | - - - -
+      cpu.reg_l = read_next();
+      cpu.reg_h = read_next();
+      dur = 12;
+    }
     // else if (cmd == 0x22) { // LD (HL+),A | 1  8 | - - - -
     // }
     // else if (cmd == 0x23) { // INC HL | 1  8 | - - - -
