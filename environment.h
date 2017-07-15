@@ -11,6 +11,7 @@ class Environment {
 public:
   Environment(unique_ptr<uint8_t>&&);
   void reset();
+  void run();
 
 private:
   CPU cpu;
@@ -27,4 +28,14 @@ private:
   // 0xFF80-0xFFFE: High RAM Area.
   // 0xFFFF: Interrupt Enable Register.
   uint8_t mem[MEM_SIZE];
+
+  uint8_t get_mem(uint16_t ptr);
+  uint8_t read_next();
+  uint16_t read_next_hl();
+
+  inline void set_flag(uint8_t, bool);
+  void set_zero_flag(bool);
+  void set_substract_flag(bool);
+  void set_half_carry_flag(bool);
+  void set_carry_flag(bool);
 };

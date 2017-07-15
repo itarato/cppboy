@@ -20,4 +20,9 @@ public:
           reg_h, reg_l;
 
   uint16_t reg_sp, reg_pc;
+
+  void dump_registers();
 };
+
+template <typename T>
+void dump_bin(T);
