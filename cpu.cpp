@@ -20,6 +20,17 @@ void CPU::dump_registers() {
   printf("  ┗━━━━━┻━━━━━┛\n");
 }
 
+void CPU::step_dword_reg(uint8_t *high, uint8_t *low, int step) {
+  uint16_t val = *high << 8 | *low;
+  val += step;
+  *low = val & 0xFF;
+  *high = (val >> 8) & 0xFF;
+}
+
+void CPU::dec_hl() {
+  step_dword_reg(&reg_h, &reg_l, -1);
+}
+
 template <typename T>
 void dump_bin(T val) {
   size_t len = sizeof(T);

@@ -29,7 +29,8 @@ private:
   // 0xFFFF: Interrupt Enable Register.
   uint8_t mem[MEM_SIZE];
 
-  uint8_t get_mem(uint16_t ptr);
+  uint8_t get_mem(uint16_t);
+  void set_mem(uint16_t, uint8_t);
   uint8_t read_next();
   uint16_t read_next_hl();
 

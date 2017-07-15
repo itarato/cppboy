@@ -1,5 +1,6 @@
 #include "environment.h"
 #include <iostream>
+#include "util.h"
 
 using namespace std;
 
@@ -30,10 +31,19 @@ uint16_t Environment::read_next_hl() {
 }
 
 uint8_t Environment::get_mem(uint16_t ptr) {
-  if (ptr < 0x100) {
+  if (0 <= ptr && ptr < ROM_SIZE) {
     return rom.get()[ptr];
   } else {
-    printf("Invalid memory address request: 0x%.2x (%d)\n", ptr, ptr);
+    ERR(printf("Invalid memory address read request: 0x%.2x (%d)", ptr, ptr));
+    exit(EXIT_FAILURE);
+  }
+}
+
+void Environment::set_mem(uint16_t ptr, uint8_t val) {
+  if (ADDR_VIDEO_START <= ptr && ptr <= ADDR_VIDEO_END) {
+    mem[ptr] = val;
+  } else {
+    ERR(printf("Invalid memory address write request: 0x%.2x (%d)", ptr, ptr));
     exit(EXIT_FAILURE);
   }
 }
@@ -176,8 +186,12 @@ void Environment::run() {
       cpu.reg_sp = read_next_hl();
       dur = 12;
     }
-    // else if (cmd == 0x32) { // LD (HL-),A | 1  8 | - - - -
-    // }
+    else if (cmd == 0x32) { // LD (HL-),A | 1  8 | - - - -
+      uint16_t addr = cpu.reg_h << 8 | cpu.reg_l;
+      set_mem(addr, cpu.reg_a);
+      cpu.dec_hl();
+      dur = 8;
+    }
     // else if (cmd == 0x33) { // INC SP | 1  8 | - - - -
     // }
     // else if (cmd == 0x34) { // INC (HL) | 1  12 | Z 0 H -
@@ -489,8 +503,8 @@ void Environment::run() {
     // }
     // else if (cmd == 0xCA) { // JP Z,a16 | 3  16/12 | - - - -
     // }
-    // else if (cmd == 0xCB) { // PREFIX CB | 1  4 | - - - -
-    // }
+    else if (cmd == 0xCB) { // PREFIX CB | 1  4 | - - - -
+    }
     // else if (cmd == 0xCC) { // CALL Z,a16 | 3  24/12 | - - - -
     // }
     // else if (cmd == 0xCD) { // CALL a16 | 3  24 | - - - -
@@ -574,7 +588,7 @@ void Environment::run() {
     // else if (cmd == 0xFF) { // RST 38H | 1  16 | - - - -
     // }
     else {
-      printf("Unknown command: 0x%.2x @ 0x%.2x (%d)\n", cmd, cpu.reg_pc - 1, cpu.reg_pc - 1);
+      ERR(printf("Unknown command: 0x%.2x @ 0x%.2x (%d)", cmd, cpu.reg_pc - 1, (int) cpu.reg_pc - 1));
       break;
     }
 

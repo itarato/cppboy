@@ -22,6 +22,8 @@ public:
   uint16_t reg_sp, reg_pc;
 
   void dump_registers();
+  void step_dword_reg(uint8_t *, uint8_t *, int);
+  void dec_hl();
 };
 
 template <typename T>
