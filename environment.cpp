@@ -676,18 +676,24 @@ void Environment::run() {
       else if (cmd == 0x47) { // BIT 0,A | 2  8 | Z 0 1 -
         op_bit_n_d8(cpu.reg_a, &dur, 0);
       }
-      // else if (cmd == 0x48) { // BIT 1,B | 2  8 | Z 0 1 -
-      // }
-      // else if (cmd == 0x49) { // BIT 1,C | 2  8 | Z 0 1 -
-      // }
-      // else if (cmd == 0x4a) { // BIT 1,D | 2  8 | Z 0 1 -
-      // }
-      // else if (cmd == 0x4b) { // BIT 1,E | 2  8 | Z 0 1 -
-      // }
-      // else if (cmd == 0x4c) { // BIT 1,H | 2  8 | Z 0 1 -
-      // }
-      // else if (cmd == 0x4d) { // BIT 1,L | 2  8 | Z 0 1 -
-      // }
+      else if (cmd == 0x48) { // BIT 1,B | 2  8 | Z 0 1 -
+        op_bit_n_d8(cpu.reg_b, &dur, 1);
+      }
+      else if (cmd == 0x49) { // BIT 1,C | 2  8 | Z 0 1 -
+        op_bit_n_d8(cpu.reg_c, &dur, 1);
+      }
+      else if (cmd == 0x4a) { // BIT 1,D | 2  8 | Z 0 1 -
+        op_bit_n_d8(cpu.reg_d, &dur, 1);
+      }
+      else if (cmd == 0x4b) { // BIT 1,E | 2  8 | Z 0 1 -
+        op_bit_n_d8(cpu.reg_e, &dur, 1);
+      }
+      else if (cmd == 0x4c) { // BIT 1,H | 2  8 | Z 0 1 -
+        op_bit_n_d8(cpu.reg_h, &dur, 1);
+      }
+      else if (cmd == 0x4d) { // BIT 1,L | 2  8 | Z 0 1 -
+        op_bit_n_d8(cpu.reg_l, &dur, 1);
+      }
       // else if (cmd == 0x4e) { // BIT 1,(HL) | 2  16 | Z 0 1 -
       // }
       // else if (cmd == 0x4f) { // BIT 1,A | 2  8 | Z 0 1 -
