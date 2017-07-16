@@ -24,4 +24,8 @@ void run_test() {
   assert(ISBITN(0b1011, 1));
   assert(!ISBITN(0b1011, 2));
   assert(ISBITN(0b1011, 3));
+
+  uint8_t vui8 = 0b10001111;
+  assert((uint8_t) vui8 > 0);
+  assert((char) vui8 > 0);
 }
