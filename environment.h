@@ -41,4 +41,5 @@ private:
   void set_carry_flag(bool);
 
   void op_bit_n_d8(uint8_t, uint8_t *, unsigned int);
+  void op_inc(uint8_t *reg);
 };

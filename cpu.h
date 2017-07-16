@@ -23,8 +23,14 @@ public:
 
   void dump_registers();
   void step_dword_reg(uint8_t *, uint8_t *, int);
-  void dec_hl();
+  void inc_af();
+  void inc_bc();
+  void inc_de();
   void inc_hl();
+  void dec_af();
+  void dec_bc();
+  void dec_de();
+  void dec_hl();
 
   uint16_t af();
   uint16_t bc();

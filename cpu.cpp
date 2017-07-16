@@ -27,8 +27,14 @@ void CPU::step_dword_reg(uint8_t *high, uint8_t *low, int step) {
   *high = (val >> 8) & 0xFF;
 }
 
-void CPU::dec_hl() { step_dword_reg(&reg_h, &reg_l, -1); }
+void CPU::inc_af() { step_dword_reg(&reg_a, &reg_f,  1); }
+void CPU::inc_bc() { step_dword_reg(&reg_b, &reg_c,  1); }
+void CPU::inc_de() { step_dword_reg(&reg_d, &reg_e,  1); }
 void CPU::inc_hl() { step_dword_reg(&reg_h, &reg_l,  1); }
+void CPU::dec_af() { step_dword_reg(&reg_a, &reg_f, -1); }
+void CPU::dec_bc() { step_dword_reg(&reg_b, &reg_c, -1); }
+void CPU::dec_de() { step_dword_reg(&reg_d, &reg_e, -1); }
+void CPU::dec_hl() { step_dword_reg(&reg_h, &reg_l, -1); }
 
 uint16_t CPU::af() { return reg_a << 8 | reg_f; }
 uint16_t CPU::bc() { return reg_b << 8 | reg_c; }

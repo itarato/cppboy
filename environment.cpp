@@ -73,6 +73,13 @@ void Environment::op_bit_n_d8(uint8_t word, uint8_t *dur, unsigned int n) {
   *dur += 8;
 }
 
+void Environment::op_inc(uint8_t *reg) {
+  *reg += 1;
+  set_zero_flag(*reg == 0);
+  set_substract_flag(false);
+  set_half_carry_flag(ISBITN(*reg, 4));
+}
+
 void Environment::run() {
   uint64_t cycle = 0;
   for (;;) {
@@ -92,8 +99,10 @@ void Environment::run() {
       set_mem(cpu.bc(), cpu.reg_a);
       dur = 8;
     }
-    // else if (cmd == 0x03) { // INC BC | 1  8 | - - - -
-    // }
+    else if (cmd == 0x03) { // INC BC | 1  8 | - - - -
+      cpu.inc_bc();
+      dur = 8;
+    }
     // else if (cmd == 0x04) { // INC B | 1  4 | Z 0 H -
     // }
     // else if (cmd == 0x05) { // DEC B | 1  4 | Z 1 H -
@@ -136,8 +145,10 @@ void Environment::run() {
       set_mem(cpu.de(), cpu.reg_a);
       dur = 8;
     }
-    // else if (cmd == 0x13) { // INC DE | 1  8 | - - - -
-    // }
+    else if (cmd == 0x13) { // INC DE | 1  8 | - - - -
+      cpu.inc_de();
+      dur = 8;
+    }
     // else if (cmd == 0x14) { // INC D | 1  4 | Z 0 H -
     // }
     // else if (cmd == 0x15) { // DEC D | 1  4 | Z 1 H -
@@ -187,8 +198,10 @@ void Environment::run() {
       cpu.inc_hl();
       dur = 8;
     }
-    // else if (cmd == 0x23) { // INC HL | 1  8 | - - - -
-    // }
+    else if (cmd == 0x23) { // INC HL | 1  8 | - - - -
+      cpu.inc_hl();
+      dur = 8;
+    }
     // else if (cmd == 0x24) { // INC H | 1  4 | Z 0 H -
     // }
     // else if (cmd == 0x25) { // DEC H | 1  4 | Z 1 H -
@@ -214,8 +227,10 @@ void Environment::run() {
     // }
     // else if (cmd == 0x2D) { // DEC L | 1  4 | Z 1 H -
     // }
-    // else if (cmd == 0x2E) { // LD L,d8 | 2  8 | - - - -
-    // }
+    else if (cmd == 0x2E) { // LD L,d8 | 2  8 | - - - -
+      cpu.reg_l = read_next();
+      dur = 8;
+    }
     // else if (cmd == 0x2F) { // CPL | 1  4 | - 1 1 -
     // }
     // else if (cmd == 0x30) { // JR NC,r8 | 2  12/8 | - - - -
@@ -235,16 +250,21 @@ void Environment::run() {
     // }
     // else if (cmd == 0x35) { // DEC (HL) | 1  12 | Z 1 H -
     // }
-    // else if (cmd == 0x36) { // LD (HL),d8 | 2  12 | - - - -
-    // }
+    else if (cmd == 0x36) { // LD (HL),d8 | 2  12 | - - - -
+      set_mem(cpu.hl(), read_next());
+      dur = 12;
+    }
     // else if (cmd == 0x37) { // SCF | 1  4 | - 0 0 1
     // }
     // else if (cmd == 0x38) { // JR C,r8 | 2  12/8 | - - - -
     // }
     // else if (cmd == 0x39) { // ADD HL,SP | 1  8 | - 0 H C
     // }
-    // else if (cmd == 0x3A) { // LD A,(HL-) | 1  8 | - - - -
-    // }
+    else if (cmd == 0x3A) { // LD A,(HL-) | 1  8 | - - - -
+      cpu.reg_a = get_mem(cpu.hl());
+      cpu.inc_hl();
+      dur = 8;
+    }
     // else if (cmd == 0x3B) { // DEC SP | 1  8 | - - - -
     // }
     // else if (cmd == 0x3C) { // INC A | 1  4 | Z 0 H -
@@ -257,102 +277,198 @@ void Environment::run() {
     }
     // else if (cmd == 0x3F) { // CCF | 1  4 | - 0 0 C
     // }
-    // else if (cmd == 0x40) { // LD B,B | 1  4 | - - - -
-    // }
-    // else if (cmd == 0x41) { // LD B,C | 1  4 | - - - -
-    // }
-    // else if (cmd == 0x42) { // LD B,D | 1  4 | - - - -
-    // }
-    // else if (cmd == 0x43) { // LD B,E | 1  4 | - - - -
-    // }
-    // else if (cmd == 0x44) { // LD B,H | 1  4 | - - - -
-    // }
-    // else if (cmd == 0x45) { // LD B,L | 1  4 | - - - -
-    // }
-    // else if (cmd == 0x46) { // LD B,(HL) | 1  8 | - - - -
-    // }
-    // else if (cmd == 0x47) { // LD B,A | 1  4 | - - - -
-    // }
-    // else if (cmd == 0x48) { // LD C,B | 1  4 | - - - -
-    // }
-    // else if (cmd == 0x49) { // LD C,C | 1  4 | - - - -
-    // }
-    // else if (cmd == 0x4A) { // LD C,D | 1  4 | - - - -
-    // }
-    // else if (cmd == 0x4B) { // LD C,E | 1  4 | - - - -
-    // }
-    // else if (cmd == 0x4C) { // LD C,H | 1  4 | - - - -
-    // }
-    // else if (cmd == 0x4D) { // LD C,L | 1  4 | - - - -
-    // }
-    // else if (cmd == 0x4E) { // LD C,(HL) | 1  8 | - - - -
-    // }
-    // else if (cmd == 0x4F) { // LD C,A | 1  4 | - - - -
-    // }
-    // else if (cmd == 0x50) { // LD D,B | 1  4 | - - - -
-    // }
-    // else if (cmd == 0x51) { // LD D,C | 1  4 | - - - -
-    // }
-    // else if (cmd == 0x52) { // LD D,D | 1  4 | - - - -
-    // }
-    // else if (cmd == 0x53) { // LD D,E | 1  4 | - - - -
-    // }
-    // else if (cmd == 0x54) { // LD D,H | 1  4 | - - - -
-    // }
-    // else if (cmd == 0x55) { // LD D,L | 1  4 | - - - -
-    // }
-    // else if (cmd == 0x56) { // LD D,(HL) | 1  8 | - - - -
-    // }
-    // else if (cmd == 0x57) { // LD D,A | 1  4 | - - - -
-    // }
-    // else if (cmd == 0x58) { // LD E,B | 1  4 | - - - -
-    // }
-    // else if (cmd == 0x59) { // LD E,C | 1  4 | - - - -
-    // }
-    // else if (cmd == 0x5A) { // LD E,D | 1  4 | - - - -
-    // }
-    // else if (cmd == 0x5B) { // LD E,E | 1  4 | - - - -
-    // }
-    // else if (cmd == 0x5C) { // LD E,H | 1  4 | - - - -
-    // }
-    // else if (cmd == 0x5D) { // LD E,L | 1  4 | - - - -
-    // }
-    // else if (cmd == 0x5E) { // LD E,(HL) | 1  8 | - - - -
-    // }
-    // else if (cmd == 0x5F) { // LD E,A | 1  4 | - - - -
-    // }
-    // else if (cmd == 0x60) { // LD H,B | 1  4 | - - - -
-    // }
-    // else if (cmd == 0x61) { // LD H,C | 1  4 | - - - -
-    // }
-    // else if (cmd == 0x62) { // LD H,D | 1  4 | - - - -
-    // }
-    // else if (cmd == 0x63) { // LD H,E | 1  4 | - - - -
-    // }
-    // else if (cmd == 0x64) { // LD H,H | 1  4 | - - - -
-    // }
-    // else if (cmd == 0x65) { // LD H,L | 1  4 | - - - -
-    // }
-    // else if (cmd == 0x66) { // LD H,(HL) | 1  8 | - - - -
-    // }
-    // else if (cmd == 0x67) { // LD H,A | 1  4 | - - - -
-    // }
-    // else if (cmd == 0x68) { // LD L,B | 1  4 | - - - -
-    // }
-    // else if (cmd == 0x69) { // LD L,C | 1  4 | - - - -
-    // }
-    // else if (cmd == 0x6A) { // LD L,D | 1  4 | - - - -
-    // }
-    // else if (cmd == 0x6B) { // LD L,E | 1  4 | - - - -
-    // }
-    // else if (cmd == 0x6C) { // LD L,H | 1  4 | - - - -
-    // }
-    // else if (cmd == 0x6D) { // LD L,L | 1  4 | - - - -
-    // }
-    // else if (cmd == 0x6E) { // LD L,(HL) | 1  8 | - - - -
-    // }
-    // else if (cmd == 0x6F) { // LD L,A | 1  4 | - - - -
-    // }
+    else if (cmd == 0x40) { // LD B,B | 1  4 | - - - -
+      cpu.reg_b = cpu.reg_b;
+      dur = 4;
+    }
+    else if (cmd == 0x41) { // LD B,C | 1  4 | - - - -
+      cpu.reg_b = cpu.reg_c;
+      dur = 4;
+    }
+    else if (cmd == 0x42) { // LD B,D | 1  4 | - - - -
+      cpu.reg_b = cpu.reg_d;
+      dur = 4;
+    }
+    else if (cmd == 0x43) { // LD B,E | 1  4 | - - - -
+      cpu.reg_b = cpu.reg_e;
+      dur = 4;
+    }
+    else if (cmd == 0x44) { // LD B,H | 1  4 | - - - -
+      cpu.reg_b = cpu.reg_h;
+      dur = 4;
+    }
+    else if (cmd == 0x45) { // LD B,L | 1  4 | - - - -
+      cpu.reg_b = cpu.reg_l;
+      dur = 4;
+    }
+    else if (cmd == 0x46) { // LD B,(HL) | 1  8 | - - - -
+      cpu.reg_b = get_mem(cpu.hl());
+      dur = 8;
+    }
+    else if (cmd == 0x47) { // LD B,A | 1  4 | - - - -
+      cpu.reg_b = cpu.reg_a;
+      dur = 4;
+    }
+    else if (cmd == 0x48) { // LD C,B | 1  4 | - - - -
+      cpu.reg_c = cpu.reg_b;
+      dur = 4;
+    }
+    else if (cmd == 0x49) { // LD C,C | 1  4 | - - - -
+      cpu.reg_c = cpu.reg_c;
+      dur = 4;
+    }
+    else if (cmd == 0x4A) { // LD C,D | 1  4 | - - - -
+      cpu.reg_c = cpu.reg_d;
+      dur = 4;
+    }
+    else if (cmd == 0x4B) { // LD C,E | 1  4 | - - - -
+      cpu.reg_c = cpu.reg_e;
+      dur = 4;
+    }
+    else if (cmd == 0x4C) { // LD C,H | 1  4 | - - - -
+      cpu.reg_c = cpu.reg_h;
+      dur = 4;
+    }
+    else if (cmd == 0x4D) { // LD C,L | 1  4 | - - - -
+      cpu.reg_c = cpu.reg_l;
+      dur = 4;
+    }
+    else if (cmd == 0x4E) { // LD C,(HL) | 1  8 | - - - -
+      cpu.reg_c = get_mem(cpu.hl());
+      dur = 8;
+    }
+    else if (cmd == 0x4F) { // LD C,A | 1  4 | - - - -
+      cpu.reg_c = cpu.reg_a;
+      dur = 4;
+    }
+    else if (cmd == 0x50) { // LD D,B | 1  4 | - - - -
+      cpu.reg_d = cpu.reg_b;
+      dur = 4;
+    }
+    else if (cmd == 0x51) { // LD D,C | 1  4 | - - - -
+      cpu.reg_d = cpu.reg_c;
+      dur = 4;
+    }
+    else if (cmd == 0x52) { // LD D,D | 1  4 | - - - -
+      cpu.reg_d = cpu.reg_d;
+      dur = 4;
+    }
+    else if (cmd == 0x53) { // LD D,E | 1  4 | - - - -
+      cpu.reg_d = cpu.reg_e;
+      dur = 4;
+    }
+    else if (cmd == 0x54) { // LD D,H | 1  4 | - - - -
+      cpu.reg_d = cpu.reg_h;
+      dur = 4;
+    }
+    else if (cmd == 0x55) { // LD D,L | 1  4 | - - - -
+      cpu.reg_d = cpu.reg_l;
+      dur = 4;
+    }
+    else if (cmd == 0x56) { // LD D,(HL) | 1  8 | - - - -
+      cpu.reg_d = get_mem(cpu.hl());
+      dur = 8;
+    }
+    else if (cmd == 0x57) { // LD D,A | 1  4 | - - - -
+      cpu.reg_d = cpu.reg_a;
+      dur = 4;
+    }
+    else if (cmd == 0x58) { // LD E,B | 1  4 | - - - -
+      cpu.reg_e = cpu.reg_b;
+      dur = 4;
+    }
+    else if (cmd == 0x59) { // LD E,C | 1  4 | - - - -
+      cpu.reg_e = cpu.reg_c;
+      dur = 4;
+    }
+    else if (cmd == 0x5A) { // LD E,D | 1  4 | - - - -
+      cpu.reg_e = cpu.reg_d;
+      dur = 4;
+    }
+    else if (cmd == 0x5B) { // LD E,E | 1  4 | - - - -
+      cpu.reg_e = cpu.reg_e;
+      dur = 4;
+    }
+    else if (cmd == 0x5C) { // LD E,H | 1  4 | - - - -
+      cpu.reg_e = cpu.reg_h;
+      dur = 4;
+    }
+    else if (cmd == 0x5D) { // LD E,L | 1  4 | - - - -
+      cpu.reg_e = cpu.reg_l;
+      dur = 4;
+    }
+    else if (cmd == 0x5E) { // LD E,(HL) | 1  8 | - - - -
+      cpu.reg_e = get_mem(cpu.hl());
+      dur = 8;
+    }
+    else if (cmd == 0x5F) { // LD E,A | 1  4 | - - - -
+      cpu.reg_e = cpu.reg_a;
+      dur = 4;
+    }
+    else if (cmd == 0x60) { // LD H,B | 1  4 | - - - -
+      cpu.reg_h = cpu.reg_b;
+      dur = 4;
+    }
+    else if (cmd == 0x61) { // LD H,C | 1  4 | - - - -
+      cpu.reg_h = cpu.reg_c;
+      dur = 4;
+    }
+    else if (cmd == 0x62) { // LD H,D | 1  4 | - - - -
+      cpu.reg_h = cpu.reg_d;
+      dur = 4;
+    }
+    else if (cmd == 0x63) { // LD H,E | 1  4 | - - - -
+      cpu.reg_h = cpu.reg_e;
+      dur = 4;
+    }
+    else if (cmd == 0x64) { // LD H,H | 1  4 | - - - -
+      cpu.reg_h = cpu.reg_h;
+      dur = 4;
+    }
+    else if (cmd == 0x65) { // LD H,L | 1  4 | - - - -
+      cpu.reg_h = cpu.reg_l;
+      dur = 4;
+    }
+    else if (cmd == 0x66) { // LD H,(HL) | 1  8 | - - - -
+      cpu.reg_h = get_mem(cpu.hl());
+      dur = 8;
+    }
+    else if (cmd == 0x67) { // LD H,A | 1  4 | - - - -
+      cpu.reg_h = cpu.reg_a;
+      dur = 4;
+    }
+    else if (cmd == 0x68) { // LD L,B | 1  4 | - - - -
+      cpu.reg_l = cpu.reg_b;
+      dur = 4;
+    }
+    else if (cmd == 0x69) { // LD L,C | 1  4 | - - - -
+      cpu.reg_l = cpu.reg_c;
+      dur = 4;
+    }
+    else if (cmd == 0x6A) { // LD L,D | 1  4 | - - - -
+      cpu.reg_l = cpu.reg_d;
+      dur = 4;
+    }
+    else if (cmd == 0x6B) { // LD L,E | 1  4 | - - - -
+      cpu.reg_l = cpu.reg_e;
+      dur = 4;
+    }
+    else if (cmd == 0x6C) { // LD L,H | 1  4 | - - - -
+      cpu.reg_l = cpu.reg_h;
+      dur = 4;
+    }
+    else if (cmd == 0x6D) { // LD L,L | 1  4 | - - - -
+      cpu.reg_l = cpu.reg_l;
+      dur = 4;
+    }
+    else if (cmd == 0x6E) { // LD L,(HL) | 1  8 | - - - -
+      cpu.reg_l = get_mem(cpu.hl());
+      dur = 8;
+    }
+    else if (cmd == 0x6F) { // LD L,A | 1  4 | - - - -
+      cpu.reg_l = cpu.reg_a;
+      dur = 4;
+    }
     // else if (cmd == 0x70) { // LD (HL),B | 1  8 | - - - -
     // }
     // else if (cmd == 0x71) { // LD (HL),C | 1  8 | - - - -
@@ -369,22 +485,38 @@ void Environment::run() {
     // }
     // else if (cmd == 0x77) { // LD (HL),A | 1  8 | - - - -
     // }
-    // else if (cmd == 0x78) { // LD A,B | 1  4 | - - - -
-    // }
-    // else if (cmd == 0x79) { // LD A,C | 1  4 | - - - -
-    // }
-    // else if (cmd == 0x7A) { // LD A,D | 1  4 | - - - -
-    // }
-    // else if (cmd == 0x7B) { // LD A,E | 1  4 | - - - -
-    // }
-    // else if (cmd == 0x7C) { // LD A,H | 1  4 | - - - -
-    // }
-    // else if (cmd == 0x7D) { // LD A,L | 1  4 | - - - -
-    // }
-    // else if (cmd == 0x7E) { // LD A,(HL) | 1  8 | - - - -
-    // }
-    // else if (cmd == 0x7F) { // LD A,A | 1  4 | - - - -
-    // }
+    else if (cmd == 0x78) { // LD A,B | 1  4 | - - - -
+      cpu.reg_a = cpu.reg_b;
+      dur = 4;
+    }
+    else if (cmd == 0x79) { // LD A,C | 1  4 | - - - -
+      cpu.reg_a = cpu.reg_c;
+      dur = 4;
+    }
+    else if (cmd == 0x7A) { // LD A,D | 1  4 | - - - -
+      cpu.reg_a = cpu.reg_d;
+      dur = 4;
+    }
+    else if (cmd == 0x7B) { // LD A,E | 1  4 | - - - -
+      cpu.reg_a = cpu.reg_e;
+      dur = 4;
+    }
+    else if (cmd == 0x7C) { // LD A,H | 1  4 | - - - -
+      cpu.reg_a = cpu.reg_h;
+      dur = 4;
+    }
+    else if (cmd == 0x7D) { // LD A,L | 1  4 | - - - -
+      cpu.reg_a = cpu.reg_l;
+      dur = 4;
+    }
+    else if (cmd == 0x7E) { // LD A,(HL) | 1  8 | - - - -
+      cpu.reg_a = get_mem(cpu.hl());
+      dur = 8;
+    }
+    else if (cmd == 0x7F) { // LD A,A | 1  4 | - - - -
+      cpu.reg_a = cpu.reg_a;
+      dur = 4;
+    }
     // else if (cmd == 0x80) { // ADD A,B | 1  4 | Z 0 H C
     // }
     // else if (cmd == 0x81) { // ADD A,C | 1  4 | Z 0 H C
