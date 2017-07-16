@@ -30,6 +30,7 @@ private:
   uint8_t mem[MEM_SIZE];
 
   uint8_t get_mem(uint16_t);
+  uint8_t * get_mem_ptr(uint16_t);
   void set_mem(uint16_t, uint8_t);
   uint8_t read_next();
   uint16_t read_next_hl();
@@ -41,6 +42,9 @@ private:
   void set_carry_flag(bool);
 
   void op_bit_n_d8(uint8_t, uint8_t *, unsigned int);
+  // @todo op inc and dec should include &dur.
   void op_inc(uint8_t *);
   void op_dec(uint8_t *);
+  void op_rlc_n(uint8_t *, uint8_t *);
+  void op_rrc_n(uint8_t *, uint8_t *);
 };

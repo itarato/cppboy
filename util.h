@@ -2,4 +2,5 @@
 
 #include <cstdint>
 
-uint8_t rotate_left_n(uint8_t, unsigned int);
+uint8_t rotate_left(uint8_t);
+uint8_t rotate_right(uint8_t);

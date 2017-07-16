@@ -38,6 +38,14 @@ uint8_t Environment::get_mem(uint16_t ptr) {
   }
 }
 
+uint8_t * Environment::get_mem_ptr(uint16_t ptr) {
+  if (0 <= ptr && ptr < ROM_SIZE) {
+    return &rom.get()[ptr];
+  } else {
+    return &mem[ptr];
+  }
+}
+
 void Environment::set_mem(uint16_t ptr, uint8_t val) {
   mem[ptr] = val;
 }
@@ -70,7 +78,7 @@ void Environment::op_bit_n_d8(uint8_t word, uint8_t *dur, unsigned int n) {
   set_zero_flag(!ISBITN(word, n));
   set_substract_flag(false);
   set_half_carry_flag(true);
-  *dur += 8;
+  *dur = 8;
 }
 
 void Environment::op_inc(uint8_t *reg) {
@@ -85,6 +93,28 @@ void Environment::op_dec(uint8_t *reg) {
   set_zero_flag(*reg == 0);
   set_substract_flag(true);
   set_half_carry_flag((*reg ^ 0b1111) == 0);
+}
+
+void Environment::op_rlc_n(uint8_t *reg, uint8_t *dur) {
+  set_carry_flag(ISBITN(*reg, 7));
+  set_substract_flag(false);
+  set_half_carry_flag(false);
+
+  *reg = rotate_left(*reg);
+  set_zero_flag(*reg == 0);
+
+  *dur = 8;
+}
+
+void Environment::op_rrc_n(uint8_t *reg, uint8_t *dur) {
+  set_carry_flag(ISBITN(*reg, 0));
+  set_substract_flag(false);
+  set_half_carry_flag(false);
+
+  *reg = rotate_right(*reg);
+  set_zero_flag(*reg == 0);
+
+  *dur = 8;
 }
 
 void Environment::run() {
@@ -122,8 +152,14 @@ void Environment::run() {
       cpu.reg_b = read_next();
       dur = 8;
     }
-    // else if (cmd == 0x07) { // RLCA | 1  4 | 0 0 0 C
-    // }
+    else if (cmd == 0x07) { // RLCA | 1  4 | 0 0 0 C
+      set_carry_flag(ISBITN(cpu.reg_a, 7));
+      cpu.reg_a = rotate_left(cpu.reg_a);
+      set_substract_flag(false);
+      set_half_carry_flag(false);
+      set_zero_flag(false);
+      dur = 4;
+    }
     else if (cmd == 0x08) { // LD (a16),SP | 3  20 | - - - -
       set_mem(read_next_hl(), cpu.reg_sp);
       dur = 20;
@@ -721,47 +757,55 @@ void Environment::run() {
       cmd = read_next();
 
       if (cmd == 0x00) { // RLC B | 2  8 | Z 0 0 C
-        uint8_t n = read_next();
-
-        set_carry_flag(ISBITN(cpu.reg_b, 7));
-        set_substract_flag(false);
-        set_half_carry_flag(false);
-
-        cpu.reg_b = rotate_left_n(cpu.reg_b, n);
-        set_zero_flag(cpu.reg_b == 0);
-
-        dur += 8;
+        op_rlc_n(&cpu.reg_b, &dur);
       }
-      // else if (cmd == 0x01) { // RLC C | 2  8 | Z 0 0 C
-      // }
-      // else if (cmd == 0x02) { // RLC D | 2  8 | Z 0 0 C
-      // }
-      // else if (cmd == 0x03) { // RLC E | 2  8 | Z 0 0 C
-      // }
-      // else if (cmd == 0x04) { // RLC H | 2  8 | Z 0 0 C
-      // }
-      // else if (cmd == 0x05) { // RLC L | 2  8 | Z 0 0 C
-      // }
-      // else if (cmd == 0x06) { // RLC (HL) | 2  16 | Z 0 0 C
-      // }
-      // else if (cmd == 0x07) { // RLC A | 2  8 | Z 0 0 C
-      // }
-      // else if (cmd == 0x08) { // RRC B | 2  8 | Z 0 0 C
-      // }
-      // else if (cmd == 0x09) { // RRC C | 2  8 | Z 0 0 C
-      // }
-      // else if (cmd == 0x0a) { // RRC D | 2  8 | Z 0 0 C
-      // }
-      // else if (cmd == 0x0b) { // RRC E | 2  8 | Z 0 0 C
-      // }
-      // else if (cmd == 0x0c) { // RRC H | 2  8 | Z 0 0 C
-      // }
-      // else if (cmd == 0x0d) { // RRC L | 2  8 | Z 0 0 C
-      // }
-      // else if (cmd == 0x0e) { // RRC (HL) | 2  16 | Z 0 0 C
-      // }
-      // else if (cmd == 0x0f) { // RRC A | 2  8 | Z 0 0 C
-      // }
+      else if (cmd == 0x01) { // RLC C | 2  8 | Z 0 0 C
+        op_rlc_n(&cpu.reg_c, &dur);
+      }
+      else if (cmd == 0x02) { // RLC D | 2  8 | Z 0 0 C
+        op_rlc_n(&cpu.reg_d, &dur);
+      }
+      else if (cmd == 0x03) { // RLC E | 2  8 | Z 0 0 C
+        op_rlc_n(&cpu.reg_e, &dur);
+      }
+      else if (cmd == 0x04) { // RLC H | 2  8 | Z 0 0 C
+        op_rlc_n(&cpu.reg_h, &dur);
+      }
+      else if (cmd == 0x05) { // RLC L | 2  8 | Z 0 0 C
+        op_rlc_n(&cpu.reg_l, &dur);
+      }
+      else if (cmd == 0x06) { // RLC (HL) | 2  16 | Z 0 0 C
+        op_rlc_n(get_mem_ptr(cpu.hl()), &dur);
+        dur = 16;
+      }
+      else if (cmd == 0x07) { // RLC A | 2  8 | Z 0 0 C
+        op_rlc_n(&cpu.reg_a, &dur);
+      }
+      else if (cmd == 0x08) { // RRC B | 2  8 | Z 0 0 C
+        op_rrc_n(&cpu.reg_b, &dur);
+      }
+      else if (cmd == 0x09) { // RRC C | 2  8 | Z 0 0 C
+        op_rrc_n(&cpu.reg_c, &dur);
+      }
+      else if (cmd == 0x0a) { // RRC D | 2  8 | Z 0 0 C
+        op_rrc_n(&cpu.reg_d, &dur);
+      }
+      else if (cmd == 0x0b) { // RRC E | 2  8 | Z 0 0 C
+        op_rrc_n(&cpu.reg_e, &dur);
+      }
+      else if (cmd == 0x0c) { // RRC H | 2  8 | Z 0 0 C
+        op_rrc_n(&cpu.reg_h, &dur);
+      }
+      else if (cmd == 0x0d) { // RRC L | 2  8 | Z 0 0 C
+        op_rrc_n(&cpu.reg_l, &dur);
+      }
+      else if (cmd == 0x0e) { // RRC (HL) | 2  16 | Z 0 0 C
+        op_rrc_n(get_mem_ptr(cpu.hl()), &dur);
+        dur = 16;
+      }
+      else if (cmd == 0x0f) { // RRC A | 2  8 | Z 0 0 C
+        op_rrc_n(&cpu.reg_a, &dur);
+      }
       // else if (cmd == 0x10) { // RL B | 2  8 | Z 0 0 C
       // }
       // else if (cmd == 0x11) { // RL C | 2  8 | Z 0 0 C
