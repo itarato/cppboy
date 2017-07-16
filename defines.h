@@ -13,3 +13,8 @@
 
 #define BITN(v, n) (((v) >> (n)) & 0b1)
 #define ISBITN(v, n) (BITN(v, n) == 1)
+
+#define BITFZ 7
+#define BITFN 6
+#define BITFH 5
+#define BITFC 4

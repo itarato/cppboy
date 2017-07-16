@@ -39,12 +39,7 @@ uint8_t Environment::get_mem(uint16_t ptr) {
 }
 
 void Environment::set_mem(uint16_t ptr, uint8_t val) {
-  if (ADDR_VIDEO_START <= ptr && ptr <= ADDR_VIDEO_END) {
-    mem[ptr] = val;
-  } else {
-    ERR(printf("Invalid memory address write request: 0x%.2x (%d)", ptr, ptr));
-    exit(EXIT_FAILURE);
-  }
+  mem[ptr] = val;
 }
 
 inline void Environment::set_flag(uint8_t bit, bool is_on) {
@@ -84,63 +79,83 @@ void Environment::run() {
     uint8_t cmd = read_next();
     uint8_t dur = 0;
 
-    printf("CMD 0x%.2x @ 0x%.2x (%d) CYCLE %lu\n", cmd, cpu.reg_pc - 1, cpu.reg_pc - 1, cycle);
+    // printf("CMD 0x%.2x @ 0x%.2x (%d) CYCLE %lu\n", cmd, cpu.reg_pc - 1, cpu.reg_pc - 1, cycle);
 
     if (cmd == 0x00) { // NOP | 1  4 | - - - -
       dur = 4;
     }
-    // else if (cmd == 0x01) { // LD BC,d16 | 3  12 | - - - -
-    // }
-    // else if (cmd == 0x02) { // LD (BC),A | 1  8 | - - - -
-    // }
+    else if (cmd == 0x01) { // LD BC,d16 | 3  12 | - - - -
+      cpu.set_bc(read_next_hl());
+      dur = 12;
+    }
+    else if (cmd == 0x02) { // LD (BC),A | 1  8 | - - - -
+      set_mem(cpu.bc(), cpu.reg_a);
+      dur = 8;
+    }
     // else if (cmd == 0x03) { // INC BC | 1  8 | - - - -
     // }
     // else if (cmd == 0x04) { // INC B | 1  4 | Z 0 H -
     // }
     // else if (cmd == 0x05) { // DEC B | 1  4 | Z 1 H -
     // }
-    // else if (cmd == 0x06) { // LD B,d8 | 2  8 | - - - -
-    // }
+    else if (cmd == 0x06) { // LD B,d8 | 2  8 | - - - -
+      cpu.reg_b = read_next();
+      dur = 8;
+    }
     // else if (cmd == 0x07) { // RLCA | 1  4 | 0 0 0 C
     // }
-    // else if (cmd == 0x08) { // LD (a16),SP | 3  20 | - - - -
-    // }
+    else if (cmd == 0x08) { // LD (a16),SP | 3  20 | - - - -
+      set_mem(read_next_hl(), cpu.reg_sp);
+      dur = 20;
+    }
     // else if (cmd == 0x09) { // ADD HL,BC | 1  8 | - 0 H C
     // }
-    // else if (cmd == 0x0A) { // LD A,(BC) | 1  8 | - - - -
-    // }
+    else if (cmd == 0x0A) { // LD A,(BC) | 1  8 | - - - -
+      cpu.reg_a = get_mem(cpu.bc());
+      dur = 8;
+    }
     // else if (cmd == 0x0B) { // DEC BC | 1  8 | - - - -
     // }
     // else if (cmd == 0x0C) { // INC C | 1  4 | Z 0 H -
     // }
     // else if (cmd == 0x0D) { // DEC C | 1  4 | Z 1 H -
     // }
-    // else if (cmd == 0x0E) { // LD C,d8 | 2  8 | - - - -
-    // }
+    else if (cmd == 0x0E) { // LD C,d8 | 2  8 | - - - -
+      cpu.reg_c = read_next();
+      dur = 8;
+    }
     // else if (cmd == 0x0F) { // RRCA | 1  4 | 0 0 0 C
     // }
     // else if (cmd == 0x10) { // STOP 0 | 2  4 | - - - -
     // }
-    // else if (cmd == 0x11) { // LD DE,d16 | 3  12 | - - - -
-    // }
-    // else if (cmd == 0x12) { // LD (DE),A | 1  8 | - - - -
-    // }
+    else if (cmd == 0x11) { // LD DE,d16 | 3  12 | - - - -
+      cpu.set_de(read_next_hl());
+      dur = 12;
+    }
+    else if (cmd == 0x12) { // LD (DE),A | 1  8 | - - - -
+      set_mem(cpu.de(), cpu.reg_a);
+      dur = 8;
+    }
     // else if (cmd == 0x13) { // INC DE | 1  8 | - - - -
     // }
     // else if (cmd == 0x14) { // INC D | 1  4 | Z 0 H -
     // }
     // else if (cmd == 0x15) { // DEC D | 1  4 | Z 1 H -
     // }
-    // else if (cmd == 0x16) { // LD D,d8 | 2  8 | - - - -
-    // }
+    else if (cmd == 0x16) { // LD D,d8 | 2  8 | - - - -
+      cpu.reg_d = read_next();
+      dur = 8;
+    }
     // else if (cmd == 0x17) { // RLA | 1  4 | 0 0 0 C
     // }
     // else if (cmd == 0x18) { // JR r8 | 2  12 | - - - -
     // }
     // else if (cmd == 0x19) { // ADD HL,DE | 1  8 | - 0 H C
     // }
-    // else if (cmd == 0x1A) { // LD A,(DE) | 1  8 | - - - -
-    // }
+    else if (cmd == 0x1A) { // LD A,(DE) | 1  8 | - - - -
+      cpu.reg_a = get_mem(cpu.de());
+      dur = 8;
+    }
     // else if (cmd == 0x1B) { // DEC DE | 1  8 | - - - -
     // }
     // else if (cmd == 0x1C) { // INC E | 1  4 | Z 0 H -
@@ -152,7 +167,13 @@ void Environment::run() {
     // else if (cmd == 0x1F) { // RRA | 1  4 | 0 0 0 C
     // }
     else if (cmd == 0x20) { // JR NZ,r8 | 2  12/8 | - - - -
+      char offset = (char) read_next();
+      dur = 8;
 
+      if (!ISBITN(cpu.reg_f, BITFZ)) {
+        dur = 12;
+        cpu.reg_pc += offset;
+      }
     }
     else if (cmd == 0x21) { // LD HL,d16 | 3  12 | - - - -
       cpu.reg_l = read_next();
@@ -221,8 +242,10 @@ void Environment::run() {
     // }
     // else if (cmd == 0x3D) { // DEC A | 1  4 | Z 1 H -
     // }
-    // else if (cmd == 0x3E) { // LD A,d8 | 2  8 | - - - -
-    // }
+    else if (cmd == 0x3E) { // LD A,d8 | 2  8 | - - - -
+      cpu.reg_a = read_next();
+      dur = 8;
+    }
     // else if (cmd == 0x3F) { // CCF | 1  4 | - 0 0 C
     // }
     // else if (cmd == 0x40) { // LD B,B | 1  4 | - - - -
@@ -1193,8 +1216,8 @@ void Environment::run() {
       break;
     }
 
-    cpu.dump_registers();
-    cout << "Duration: " << (int) dur << endl;
+    // cpu.dump_registers();
+    // cout << "Duration: " << (int) dur << endl;
 
     cycle++;
   }

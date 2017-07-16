@@ -27,13 +27,22 @@ void CPU::step_dword_reg(uint8_t *high, uint8_t *low, int step) {
   *high = (val >> 8) & 0xFF;
 }
 
-void CPU::dec_hl() {
-  step_dword_reg(&reg_h, &reg_l, -1);
+void CPU::dec_hl() { step_dword_reg(&reg_h, &reg_l, -1); }
+
+uint16_t CPU::af() { return reg_a << 8 | reg_f; }
+uint16_t CPU::bc() { return reg_b << 8 | reg_c; }
+uint16_t CPU::de() { return reg_d << 8 | reg_e; }
+uint16_t CPU::hl() { return reg_h << 8 | reg_l; }
+
+void CPU::set_reg_pair(uint8_t *reg_hi, uint8_t *reg_lo, uint16_t val) {
+  *reg_hi = (val >> 8) & 0xFF;
+  *reg_lo = val & 0xFF;
 }
 
-uint16_t CPU::hl() {
-  return reg_h << 8 | reg_l;
-}
+void CPU::set_af(uint16_t val) { set_reg_pair(&reg_a, &reg_f, val); }
+void CPU::set_bc(uint16_t val) { set_reg_pair(&reg_b, &reg_c, val); }
+void CPU::set_de(uint16_t val) { set_reg_pair(&reg_d, &reg_e, val); }
+void CPU::set_hl(uint16_t val) { set_reg_pair(&reg_h, &reg_l, val); }
 
 template <typename T>
 void dump_bin(T val) {
