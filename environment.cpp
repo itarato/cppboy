@@ -103,8 +103,9 @@ void Environment::run() {
       cpu.inc_bc();
       dur = 8;
     }
-    // else if (cmd == 0x04) { // INC B | 1  4 | Z 0 H -
-    // }
+    else if (cmd == 0x04) { // INC B | 1  4 | Z 0 H -
+      op_inc(&cpu.reg_b);
+    }
     // else if (cmd == 0x05) { // DEC B | 1  4 | Z 1 H -
     // }
     else if (cmd == 0x06) { // LD B,d8 | 2  8 | - - - -
@@ -125,8 +126,9 @@ void Environment::run() {
     }
     // else if (cmd == 0x0B) { // DEC BC | 1  8 | - - - -
     // }
-    // else if (cmd == 0x0C) { // INC C | 1  4 | Z 0 H -
-    // }
+    else if (cmd == 0x0C) { // INC C | 1  4 | Z 0 H -
+      op_inc(&cpu.reg_c);
+    }
     // else if (cmd == 0x0D) { // DEC C | 1  4 | Z 1 H -
     // }
     else if (cmd == 0x0E) { // LD C,d8 | 2  8 | - - - -
@@ -149,8 +151,9 @@ void Environment::run() {
       cpu.inc_de();
       dur = 8;
     }
-    // else if (cmd == 0x14) { // INC D | 1  4 | Z 0 H -
-    // }
+    else if (cmd == 0x14) { // INC D | 1  4 | Z 0 H -
+      op_inc(&cpu.reg_d);
+    }
     // else if (cmd == 0x15) { // DEC D | 1  4 | Z 1 H -
     // }
     else if (cmd == 0x16) { // LD D,d8 | 2  8 | - - - -
@@ -169,8 +172,9 @@ void Environment::run() {
     }
     // else if (cmd == 0x1B) { // DEC DE | 1  8 | - - - -
     // }
-    // else if (cmd == 0x1C) { // INC E | 1  4 | Z 0 H -
-    // }
+    else if (cmd == 0x1C) { // INC E | 1  4 | Z 0 H -
+      op_inc(&cpu.reg_e);
+    }
     // else if (cmd == 0x1D) { // DEC E | 1  4 | Z 1 H -
     // }
     else if (cmd == 0x1E) { // LD E,d8 | 2  8 | - - - -
@@ -202,8 +206,9 @@ void Environment::run() {
       cpu.inc_hl();
       dur = 8;
     }
-    // else if (cmd == 0x24) { // INC H | 1  4 | Z 0 H -
-    // }
+    else if (cmd == 0x24) { // INC H | 1  4 | Z 0 H -
+      op_inc(&cpu.reg_h);
+    }
     // else if (cmd == 0x25) { // DEC H | 1  4 | Z 1 H -
     // }
     else if (cmd == 0x26) { // LD H,d8 | 2  8 | - - - -
@@ -223,8 +228,9 @@ void Environment::run() {
     }
     // else if (cmd == 0x2B) { // DEC HL | 1  8 | - - - -
     // }
-    // else if (cmd == 0x2C) { // INC L | 1  4 | Z 0 H -
-    // }
+    else if (cmd == 0x2C) { // INC L | 1  4 | Z 0 H -
+      op_inc(&cpu.reg_l);
+    }
     // else if (cmd == 0x2D) { // DEC L | 1  4 | Z 1 H -
     // }
     else if (cmd == 0x2E) { // LD L,d8 | 2  8 | - - - -
@@ -267,8 +273,9 @@ void Environment::run() {
     }
     // else if (cmd == 0x3B) { // DEC SP | 1  8 | - - - -
     // }
-    // else if (cmd == 0x3C) { // INC A | 1  4 | Z 0 H -
-    // }
+    else if (cmd == 0x3C) { // INC A | 1  4 | Z 0 H -
+      op_inc(&cpu.reg_a);
+    }
     // else if (cmd == 0x3D) { // DEC A | 1  4 | Z 1 H -
     // }
     else if (cmd == 0x3E) { // LD A,d8 | 2  8 | - - - -
