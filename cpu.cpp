@@ -31,6 +31,10 @@ void CPU::dec_hl() {
   step_dword_reg(&reg_h, &reg_l, -1);
 }
 
+uint16_t CPU::hl() {
+  return reg_h << 8 | reg_l;
+}
+
 template <typename T>
 void dump_bin(T val) {
   size_t len = sizeof(T);

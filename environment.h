@@ -39,4 +39,6 @@ private:
   void set_substract_flag(bool);
   void set_half_carry_flag(bool);
   void set_carry_flag(bool);
+
+  void op_bit_n_d8(uint8_t, uint8_t *, unsigned int);
 };

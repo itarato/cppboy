@@ -10,3 +10,6 @@
 #define SHELL_TXT_ERROR "\033[1m\033[101m "
 #define SHELL_TXT_RESET_NL " \033[0m\n"
 #define ERR(x) printf(SHELL_TXT_ERROR); x; printf(SHELL_TXT_RESET_NL)
+
+#define BITN(v, n) (((v) >> (n)) & 0b1)
+#define ISBITN(v, n) (BITN(v, n) == 1)
