@@ -77,7 +77,14 @@ void Environment::op_inc(uint8_t *reg) {
   *reg += 1;
   set_zero_flag(*reg == 0);
   set_substract_flag(false);
-  set_half_carry_flag(ISBITN(*reg, 4));
+  set_half_carry_flag((*reg & 0b1111) == 0);
+}
+
+void Environment::op_dec(uint8_t *reg) {
+  *reg -= 1;
+  set_zero_flag(*reg == 0);
+  set_substract_flag(true);
+  set_half_carry_flag((*reg ^ 0b1111) == 0);
 }
 
 void Environment::run() {
@@ -106,8 +113,9 @@ void Environment::run() {
     else if (cmd == 0x04) { // INC B | 1  4 | Z 0 H -
       op_inc(&cpu.reg_b);
     }
-    // else if (cmd == 0x05) { // DEC B | 1  4 | Z 1 H -
-    // }
+    else if (cmd == 0x05) { // DEC B | 1  4 | Z 1 H -
+      op_dec(&cpu.reg_b);
+    }
     else if (cmd == 0x06) { // LD B,d8 | 2  8 | - - - -
       cpu.reg_b = read_next();
       dur = 8;
@@ -129,8 +137,9 @@ void Environment::run() {
     else if (cmd == 0x0C) { // INC C | 1  4 | Z 0 H -
       op_inc(&cpu.reg_c);
     }
-    // else if (cmd == 0x0D) { // DEC C | 1  4 | Z 1 H -
-    // }
+    else if (cmd == 0x0D) { // DEC C | 1  4 | Z 1 H -
+      op_dec(&cpu.reg_c);
+    }
     else if (cmd == 0x0E) { // LD C,d8 | 2  8 | - - - -
       cpu.reg_c = read_next();
       dur = 8;
@@ -154,8 +163,9 @@ void Environment::run() {
     else if (cmd == 0x14) { // INC D | 1  4 | Z 0 H -
       op_inc(&cpu.reg_d);
     }
-    // else if (cmd == 0x15) { // DEC D | 1  4 | Z 1 H -
-    // }
+    else if (cmd == 0x15) { // DEC D | 1  4 | Z 1 H -
+      op_dec(&cpu.reg_d);
+    }
     else if (cmd == 0x16) { // LD D,d8 | 2  8 | - - - -
       cpu.reg_d = read_next();
       dur = 8;
@@ -175,8 +185,9 @@ void Environment::run() {
     else if (cmd == 0x1C) { // INC E | 1  4 | Z 0 H -
       op_inc(&cpu.reg_e);
     }
-    // else if (cmd == 0x1D) { // DEC E | 1  4 | Z 1 H -
-    // }
+    else if (cmd == 0x1D) { // DEC E | 1  4 | Z 1 H -
+      op_dec(&cpu.reg_e);
+    }
     else if (cmd == 0x1E) { // LD E,d8 | 2  8 | - - - -
       cpu.reg_e = read_next();
       dur = 8;
@@ -209,8 +220,9 @@ void Environment::run() {
     else if (cmd == 0x24) { // INC H | 1  4 | Z 0 H -
       op_inc(&cpu.reg_h);
     }
-    // else if (cmd == 0x25) { // DEC H | 1  4 | Z 1 H -
-    // }
+    else if (cmd == 0x25) { // DEC H | 1  4 | Z 1 H -
+      op_dec(&cpu.reg_h);
+    }
     else if (cmd == 0x26) { // LD H,d8 | 2  8 | - - - -
       cpu.reg_h = read_next();
       dur = 8;
@@ -231,8 +243,9 @@ void Environment::run() {
     else if (cmd == 0x2C) { // INC L | 1  4 | Z 0 H -
       op_inc(&cpu.reg_l);
     }
-    // else if (cmd == 0x2D) { // DEC L | 1  4 | Z 1 H -
-    // }
+    else if (cmd == 0x2D) { // DEC L | 1  4 | Z 1 H -
+      op_dec(&cpu.reg_l);
+    }
     else if (cmd == 0x2E) { // LD L,d8 | 2  8 | - - - -
       cpu.reg_l = read_next();
       dur = 8;
@@ -276,8 +289,9 @@ void Environment::run() {
     else if (cmd == 0x3C) { // INC A | 1  4 | Z 0 H -
       op_inc(&cpu.reg_a);
     }
-    // else if (cmd == 0x3D) { // DEC A | 1  4 | Z 1 H -
-    // }
+    else if (cmd == 0x3D) { // DEC A | 1  4 | Z 1 H -
+      op_dec(&cpu.reg_a);
+    }
     else if (cmd == 0x3E) { // LD A,d8 | 2  8 | - - - -
       cpu.reg_a = read_next();
       dur = 8;
