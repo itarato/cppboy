@@ -24,10 +24,13 @@ public:
   void dump_registers();
   void step_dword_reg(uint8_t *, uint8_t *, int);
   void dec_hl();
+  void inc_hl();
+
   uint16_t af();
   uint16_t bc();
   uint16_t de();
   uint16_t hl();
+
   void set_reg_pair(uint8_t *, uint8_t *, uint16_t);
   void set_af(uint16_t);
   void set_bc(uint16_t);

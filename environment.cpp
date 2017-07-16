@@ -162,8 +162,10 @@ void Environment::run() {
     // }
     // else if (cmd == 0x1D) { // DEC E | 1  4 | Z 1 H -
     // }
-    // else if (cmd == 0x1E) { // LD E,d8 | 2  8 | - - - -
-    // }
+    else if (cmd == 0x1E) { // LD E,d8 | 2  8 | - - - -
+      cpu.reg_e = read_next();
+      dur = 8;
+    }
     // else if (cmd == 0x1F) { // RRA | 1  4 | 0 0 0 C
     // }
     else if (cmd == 0x20) { // JR NZ,r8 | 2  12/8 | - - - -
@@ -180,24 +182,32 @@ void Environment::run() {
       cpu.reg_h = read_next();
       dur = 12;
     }
-    // else if (cmd == 0x22) { // LD (HL+),A | 1  8 | - - - -
-    // }
+    else if (cmd == 0x22) { // LD (HL+),A | 1  8 | - - - -
+      set_mem(cpu.hl(), cpu.reg_a);
+      cpu.inc_hl();
+      dur = 8;
+    }
     // else if (cmd == 0x23) { // INC HL | 1  8 | - - - -
     // }
     // else if (cmd == 0x24) { // INC H | 1  4 | Z 0 H -
     // }
     // else if (cmd == 0x25) { // DEC H | 1  4 | Z 1 H -
     // }
-    // else if (cmd == 0x26) { // LD H,d8 | 2  8 | - - - -
-    // }
+    else if (cmd == 0x26) { // LD H,d8 | 2  8 | - - - -
+      cpu.reg_h = read_next();
+      dur = 8;
+    }
     // else if (cmd == 0x27) { // DAA | 1  4 | Z - 0 C
     // }
     // else if (cmd == 0x28) { // JR Z,r8 | 2  12/8 | - - - -
     // }
     // else if (cmd == 0x29) { // ADD HL,HL | 1  8 | - 0 H C
     // }
-    // else if (cmd == 0x2A) { // LD A,(HL+) | 1  8 | - - - -
-    // }
+    else if (cmd == 0x2A) { // LD A,(HL+) | 1  8 | - - - -
+      cpu.reg_a = get_mem(cpu.hl());
+      cpu.inc_hl();
+      dur = 8;
+    }
     // else if (cmd == 0x2B) { // DEC HL | 1  8 | - - - -
     // }
     // else if (cmd == 0x2C) { // INC L | 1  4 | Z 0 H -
@@ -215,8 +225,7 @@ void Environment::run() {
       dur = 12;
     }
     else if (cmd == 0x32) { // LD (HL-),A | 1  8 | - - - -
-      uint16_t addr = cpu.reg_h << 8 | cpu.reg_l;
-      set_mem(addr, cpu.reg_a);
+      set_mem(cpu.hl(), cpu.reg_a);
       cpu.dec_hl();
       dur = 8;
     }

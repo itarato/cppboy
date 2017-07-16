@@ -28,6 +28,7 @@ void CPU::step_dword_reg(uint8_t *high, uint8_t *low, int step) {
 }
 
 void CPU::dec_hl() { step_dword_reg(&reg_h, &reg_l, -1); }
+void CPU::inc_hl() { step_dword_reg(&reg_h, &reg_l,  1); }
 
 uint16_t CPU::af() { return reg_a << 8 | reg_f; }
 uint16_t CPU::bc() { return reg_b << 8 | reg_c; }
