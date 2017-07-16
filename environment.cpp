@@ -694,107 +694,156 @@ void Environment::run() {
       else if (cmd == 0x4d) { // BIT 1,L | 2  8 | Z 0 1 -
         op_bit_n_d8(cpu.reg_l, &dur, 1);
       }
-      // else if (cmd == 0x4e) { // BIT 1,(HL) | 2  16 | Z 0 1 -
-      // }
-      // else if (cmd == 0x4f) { // BIT 1,A | 2  8 | Z 0 1 -
-      // }
-      // else if (cmd == 0x50) { // BIT 2,B | 2  8 | Z 0 1 -
-      // }
-      // else if (cmd == 0x51) { // BIT 2,C | 2  8 | Z 0 1 -
-      // }
-      // else if (cmd == 0x52) { // BIT 2,D | 2  8 | Z 0 1 -
-      // }
-      // else if (cmd == 0x53) { // BIT 2,E | 2  8 | Z 0 1 -
-      // }
-      // else if (cmd == 0x54) { // BIT 2,H | 2  8 | Z 0 1 -
-      // }
-      // else if (cmd == 0x55) { // BIT 2,L | 2  8 | Z 0 1 -
-      // }
-      // else if (cmd == 0x56) { // BIT 2,(HL) | 2  16 | Z 0 1 -
-      // }
-      // else if (cmd == 0x57) { // BIT 2,A | 2  8 | Z 0 1 -
-      // }
-      // else if (cmd == 0x58) { // BIT 3,B | 2  8 | Z 0 1 -
-      // }
-      // else if (cmd == 0x59) { // BIT 3,C | 2  8 | Z 0 1 -
-      // }
-      // else if (cmd == 0x5a) { // BIT 3,D | 2  8 | Z 0 1 -
-      // }
-      // else if (cmd == 0x5b) { // BIT 3,E | 2  8 | Z 0 1 -
-      // }
-      // else if (cmd == 0x5c) { // BIT 3,H | 2  8 | Z 0 1 -
-      // }
-      // else if (cmd == 0x5d) { // BIT 3,L | 2  8 | Z 0 1 -
-      // }
-      // else if (cmd == 0x5e) { // BIT 3,(HL) | 2  16 | Z 0 1 -
-      // }
-      // else if (cmd == 0x5f) { // BIT 3,A | 2  8 | Z 0 1 -
-      // }
-      // else if (cmd == 0x60) { // BIT 4,B | 2  8 | Z 0 1 -
-      // }
-      // else if (cmd == 0x61) { // BIT 4,C | 2  8 | Z 0 1 -
-      // }
-      // else if (cmd == 0x62) { // BIT 4,D | 2  8 | Z 0 1 -
-      // }
-      // else if (cmd == 0x63) { // BIT 4,E | 2  8 | Z 0 1 -
-      // }
-      // else if (cmd == 0x64) { // BIT 4,H | 2  8 | Z 0 1 -
-      // }
-      // else if (cmd == 0x65) { // BIT 4,L | 2  8 | Z 0 1 -
-      // }
-      // else if (cmd == 0x66) { // BIT 4,(HL) | 2  16 | Z 0 1 -
-      // }
-      // else if (cmd == 0x67) { // BIT 4,A | 2  8 | Z 0 1 -
-      // }
-      // else if (cmd == 0x68) { // BIT 5,B | 2  8 | Z 0 1 -
-      // }
-      // else if (cmd == 0x69) { // BIT 5,C | 2  8 | Z 0 1 -
-      // }
-      // else if (cmd == 0x6a) { // BIT 5,D | 2  8 | Z 0 1 -
-      // }
-      // else if (cmd == 0x6b) { // BIT 5,E | 2  8 | Z 0 1 -
-      // }
-      // else if (cmd == 0x6c) { // BIT 5,H | 2  8 | Z 0 1 -
-      // }
-      // else if (cmd == 0x6d) { // BIT 5,L | 2  8 | Z 0 1 -
-      // }
-      // else if (cmd == 0x6e) { // BIT 5,(HL) | 2  16 | Z 0 1 -
-      // }
-      // else if (cmd == 0x6f) { // BIT 5,A | 2  8 | Z 0 1 -
-      // }
-      // else if (cmd == 0x70) { // BIT 6,B | 2  8 | Z 0 1 -
-      // }
-      // else if (cmd == 0x71) { // BIT 6,C | 2  8 | Z 0 1 -
-      // }
-      // else if (cmd == 0x72) { // BIT 6,D | 2  8 | Z 0 1 -
-      // }
-      // else if (cmd == 0x73) { // BIT 6,E | 2  8 | Z 0 1 -
-      // }
-      // else if (cmd == 0x74) { // BIT 6,H | 2  8 | Z 0 1 -
-      // }
-      // else if (cmd == 0x75) { // BIT 6,L | 2  8 | Z 0 1 -
-      // }
-      // else if (cmd == 0x76) { // BIT 6,(HL) | 2  16 | Z 0 1 -
-      // }
-      // else if (cmd == 0x77) { // BIT 6,A | 2  8 | Z 0 1 -
-      // }
-      // else if (cmd == 0x78) { // BIT 7,B | 2  8 | Z 0 1 -
-      // }
-      // else if (cmd == 0x79) { // BIT 7,C | 2  8 | Z 0 1 -
-      // }
-      // else if (cmd == 0x7a) { // BIT 7,D | 2  8 | Z 0 1 -
-      // }
-      // else if (cmd == 0x7b) { // BIT 7,E | 2  8 | Z 0 1 -
-      // }
+      else if (cmd == 0x4e) { // BIT 1,(HL) | 2  16 | Z 0 1 -
+        op_bit_n_d8(get_mem(cpu.hl()), &dur, 1);
+      }
+      else if (cmd == 0x4f) { // BIT 1,A | 2  8 | Z 0 1 -
+        op_bit_n_d8(cpu.reg_a, &dur, 1);
+      }
+      else if (cmd == 0x50) { // BIT 2,B | 2  8 | Z 0 1 -
+        op_bit_n_d8(cpu.reg_b, &dur, 2);
+      }
+      else if (cmd == 0x51) { // BIT 2,C | 2  8 | Z 0 1 -
+        op_bit_n_d8(cpu.reg_c, &dur, 2);
+      }
+      else if (cmd == 0x52) { // BIT 2,D | 2  8 | Z 0 1 -
+        op_bit_n_d8(cpu.reg_d, &dur, 2);
+      }
+      else if (cmd == 0x53) { // BIT 2,E | 2  8 | Z 0 1 -
+        op_bit_n_d8(cpu.reg_e, &dur, 2);
+      }
+      else if (cmd == 0x54) { // BIT 2,H | 2  8 | Z 0 1 -
+        op_bit_n_d8(cpu.reg_h, &dur, 2);
+      }
+      else if (cmd == 0x55) { // BIT 2,L | 2  8 | Z 0 1 -
+        op_bit_n_d8(cpu.reg_l, &dur, 2);
+      }
+      else if (cmd == 0x56) { // BIT 2,(HL) | 2  16 | Z 0 1 -
+        op_bit_n_d8(get_mem(cpu.hl()), &dur, 2);
+      }
+      else if (cmd == 0x57) { // BIT 2,A | 2  8 | Z 0 1 -
+        op_bit_n_d8(cpu.reg_a, &dur, 2);
+      }
+      else if (cmd == 0x58) { // BIT 3,B | 2  8 | Z 0 1 -
+        op_bit_n_d8(cpu.reg_b, &dur, 3);
+      }
+      else if (cmd == 0x59) { // BIT 3,C | 2  8 | Z 0 1 -
+        op_bit_n_d8(cpu.reg_c, &dur, 3);
+      }
+      else if (cmd == 0x5a) { // BIT 3,D | 2  8 | Z 0 1 -
+        op_bit_n_d8(cpu.reg_d, &dur, 3);
+      }
+      else if (cmd == 0x5b) { // BIT 3,E | 2  8 | Z 0 1 -
+        op_bit_n_d8(cpu.reg_e, &dur, 3);
+      }
+      else if (cmd == 0x5c) { // BIT 3,H | 2  8 | Z 0 1 -
+        op_bit_n_d8(cpu.reg_h, &dur, 3);
+      }
+      else if (cmd == 0x5d) { // BIT 3,L | 2  8 | Z 0 1 -
+        op_bit_n_d8(cpu.reg_l, &dur, 3);
+      }
+      else if (cmd == 0x5e) { // BIT 3,(HL) | 2  16 | Z 0 1 -
+        op_bit_n_d8(get_mem(cpu.hl()), &dur, 3);
+      }
+      else if (cmd == 0x5f) { // BIT 3,A | 2  8 | Z 0 1 -
+        op_bit_n_d8(cpu.reg_a, &dur, 3);
+      }
+      else if (cmd == 0x60) { // BIT 4,B | 2  8 | Z 0 1 -
+        op_bit_n_d8(cpu.reg_b, &dur, 4);
+      }
+      else if (cmd == 0x61) { // BIT 4,C | 2  8 | Z 0 1 -
+        op_bit_n_d8(cpu.reg_c, &dur, 4);
+      }
+      else if (cmd == 0x62) { // BIT 4,D | 2  8 | Z 0 1 -
+        op_bit_n_d8(cpu.reg_d, &dur, 4);
+      }
+      else if (cmd == 0x63) { // BIT 4,E | 2  8 | Z 0 1 -
+        op_bit_n_d8(cpu.reg_e, &dur, 4);
+      }
+      else if (cmd == 0x64) { // BIT 4,H | 2  8 | Z 0 1 -
+        op_bit_n_d8(cpu.reg_h, &dur, 4);
+      }
+      else if (cmd == 0x65) { // BIT 4,L | 2  8 | Z 0 1 -
+        op_bit_n_d8(cpu.reg_l, &dur, 4);
+      }
+      else if (cmd == 0x66) { // BIT 4,(HL) | 2  16 | Z 0 1 -
+        op_bit_n_d8(get_mem(cpu.hl()), &dur, 4);
+      }
+      else if (cmd == 0x67) { // BIT 4,A | 2  8 | Z 0 1 -
+        op_bit_n_d8(cpu.reg_a, &dur, 4);
+      }
+      else if (cmd == 0x68) { // BIT 5,B | 2  8 | Z 0 1 -
+        op_bit_n_d8(cpu.reg_b, &dur, 5);
+      }
+      else if (cmd == 0x69) { // BIT 5,C | 2  8 | Z 0 1 -
+        op_bit_n_d8(cpu.reg_c, &dur, 5);
+      }
+      else if (cmd == 0x6a) { // BIT 5,D | 2  8 | Z 0 1 -
+        op_bit_n_d8(cpu.reg_d, &dur, 5);
+      }
+      else if (cmd == 0x6b) { // BIT 5,E | 2  8 | Z 0 1 -
+        op_bit_n_d8(cpu.reg_e, &dur, 5);
+      }
+      else if (cmd == 0x6c) { // BIT 5,H | 2  8 | Z 0 1 -
+        op_bit_n_d8(cpu.reg_h, &dur, 5);
+      }
+      else if (cmd == 0x6d) { // BIT 5,L | 2  8 | Z 0 1 -
+        op_bit_n_d8(cpu.reg_l, &dur, 5);
+      }
+      else if (cmd == 0x6e) { // BIT 5,(HL) | 2  16 | Z 0 1 -
+        op_bit_n_d8(get_mem(cpu.hl()), &dur, 5);
+      }
+      else if (cmd == 0x6f) { // BIT 5,A | 2  8 | Z 0 1 -
+        op_bit_n_d8(cpu.reg_a, &dur, 5);
+      }
+      else if (cmd == 0x70) { // BIT 6,B | 2  8 | Z 0 1 -
+        op_bit_n_d8(cpu.reg_b, &dur, 6);
+      }
+      else if (cmd == 0x71) { // BIT 6,C | 2  8 | Z 0 1 -
+        op_bit_n_d8(cpu.reg_c, &dur, 6);
+      }
+      else if (cmd == 0x72) { // BIT 6,D | 2  8 | Z 0 1 -
+        op_bit_n_d8(cpu.reg_d, &dur, 6);
+      }
+      else if (cmd == 0x73) { // BIT 6,E | 2  8 | Z 0 1 -
+        op_bit_n_d8(cpu.reg_e, &dur, 6);
+      }
+      else if (cmd == 0x74) { // BIT 6,H | 2  8 | Z 0 1 -
+        op_bit_n_d8(cpu.reg_h, &dur, 6);
+      }
+      else if (cmd == 0x75) { // BIT 6,L | 2  8 | Z 0 1 -
+        op_bit_n_d8(cpu.reg_l, &dur, 6);
+      }
+      else if (cmd == 0x76) { // BIT 6,(HL) | 2  16 | Z 0 1 -
+        op_bit_n_d8(get_mem(cpu.hl()), &dur, 6);
+      }
+      else if (cmd == 0x77) { // BIT 6,A | 2  8 | Z 0 1 -
+        op_bit_n_d8(cpu.reg_a, &dur, 6);
+      }
+      else if (cmd == 0x78) { // BIT 7,B | 2  8 | Z 0 1 -
+        op_bit_n_d8(cpu.reg_b, &dur, 7);
+      }
+      else if (cmd == 0x79) { // BIT 7,C | 2  8 | Z 0 1 -
+        op_bit_n_d8(cpu.reg_c, &dur, 7);
+      }
+      else if (cmd == 0x7a) { // BIT 7,D | 2  8 | Z 0 1 -
+        op_bit_n_d8(cpu.reg_d, &dur, 7);
+      }
+      else if (cmd == 0x7b) { // BIT 7,E | 2  8 | Z 0 1 -
+        op_bit_n_d8(cpu.reg_e, &dur, 7);
+      }
       else if (cmd == 0x7c) { // BIT 7,H | 2  8 | Z 0 1 -
         op_bit_n_d8(cpu.reg_h, &dur, 7);
       }
-      // else if (cmd == 0x7d) { // BIT 7,L | 2  8 | Z 0 1 -
-      // }
-      // else if (cmd == 0x7e) { // BIT 7,(HL) | 2  16 | Z 0 1 -
-      // }
-      // else if (cmd == 0x7f) { // BIT 7,A | 2  8 | Z 0 1 -
-      // }
+      else if (cmd == 0x7d) { // BIT 7,L | 2  8 | Z 0 1 -
+        op_bit_n_d8(cpu.reg_l, &dur, 7);
+      }
+      else if (cmd == 0x7e) { // BIT 7,(HL) | 2  16 | Z 0 1 -
+        op_bit_n_d8(get_mem(cpu.hl()), &dur, 7);
+      }
+      else if (cmd == 0x7f) { // BIT 7,A | 2  8 | Z 0 1 -
+        op_bit_n_d8(cpu.reg_a, &dur, 7);
+      }
       // else if (cmd == 0x80) { // RES 0,B | 2  8 | - - - -
       // }
       // else if (cmd == 0x81) { // RES 0,C | 2  8 | - - - -
