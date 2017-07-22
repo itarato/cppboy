@@ -1435,8 +1435,11 @@ void Environment::run() {
     // }
     // else if (cmd == 0xE1) { // POP HL | 1  12 | - - - -
     // }
-    // else if (cmd == 0xE2) { // LD (C),A | 2  8 | - - - -
-    // }
+    else if (cmd == 0xE2) { // LD (C),A | 2  8 | - - - -
+      uint8_t addr = 0xFF00 | cpu.reg_c;
+      set_mem(addr, cpu.reg_a);
+      dur = 8;
+    }
     // else if (cmd == 0xE5) { // PUSH HL | 1  16 | - - - -
     // }
     // else if (cmd == 0xE6) { // AND d8 | 2  8 | Z 0 1 0
