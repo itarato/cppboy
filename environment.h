@@ -47,4 +47,6 @@ private:
   void op_dec(uint8_t *);
   void op_rlc_n(uint8_t *, uint8_t *);
   void op_rrc_n(uint8_t *, uint8_t *);
+  void op_rl_n(uint8_t *, uint8_t *);
+  void op_rr_n(uint8_t *, uint8_t *);
 };
