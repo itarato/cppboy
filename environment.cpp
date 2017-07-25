@@ -221,14 +221,16 @@ void Environment::op_rr_n(uint8_t *reg, uint8_t *dur) {
 void Environment::run() {
   uint64_t cycle = 0;
   for (;;) {
-#ifdef DEBUG
-    if (dbg.should_stop()) {
-      dbg.prompt();
-    }
-#endif
-
     uint8_t cmd = read_next();
     uint8_t dur = 0;
+
+    #ifdef DEBUG
+      if (dbg.should_stop(cycle, cmd, cpu.reg_pc)) {
+        for (;;) {
+          if (dbg.prompt()) break;
+        }
+      }
+    #endif
 
     LOG_DEBUG(printf("CMD 0x%.2x @ 0x%.2x (%d) CYCLE %lu\n", cmd, cpu.reg_pc - 1, cpu.reg_pc - 1, cycle));
 
