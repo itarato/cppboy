@@ -21,4 +21,8 @@ void run_test() {
   uint8_t vui8 = 0b10001111;
   assert((uint8_t) vui8 > 0);
   assert((char) vui8 < 0);
+
+  uint8_t a = 250;
+  uint8_t b = 250;
+  assert(a + b > 0xFF);
 }

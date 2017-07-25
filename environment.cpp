@@ -4,7 +4,7 @@
 
 using namespace std;
 
-Environment::Environment(unique_ptr<uint8_t> && _rom) : cpu({}), rom(move(_rom)) {
+Environment::Environment(unique_ptr<uint8_t> && _rom) : cpu({}), rom(move(_rom)), dbg({}) {
   cout << "Environment has been created" << endl;
 }
 
@@ -16,6 +16,9 @@ void Environment::reset() {
   }
 
   cpu.reg_pc = 0;
+  t = 0;
+  t_div = 0;
+  t_tima = 0;
 }
 
 uint8_t Environment::read_next() {
@@ -46,8 +49,18 @@ uint8_t * Environment::get_mem_ptr(uint16_t ptr) {
   }
 }
 
-void Environment::set_mem(uint16_t ptr, uint8_t val) {
-  mem[ptr] = val;
+void Environment::set_mem(uint16_t addr, uint8_t val) {
+  if (0xC000 <= addr && addr < 0xDE00) {
+    uint16_t offset = addr - 0xC000;
+    mem[addr] = mem[0xE000 + offset] = val;
+  } else if (0xE000 <= addr && addr < 0xFE00) {
+    uint16_t offset = addr - 0xE000;
+    mem[addr] = mem[0xC000 + offset] = val;
+  } else if (addr == ADDR_DIV) {
+    mem[addr] = 0;
+  } else {
+    mem[addr] = val;
+  }
 }
 
 inline void Environment::set_flag(uint8_t bit, bool is_on) {
@@ -72,6 +85,70 @@ void Environment::set_half_carry_flag(bool is_on) {
 
 void Environment::set_carry_flag(bool is_on) {
   set_flag(4, is_on);
+}
+
+void Environment::push_to_stack_d8(uint8_t val) {
+  set_mem(cpu.reg_sp, val);
+  cpu.reg_sp--;
+}
+
+void Environment::push_to_stack_d16(uint16_t val) {
+  uint8_t lo = val & 0xFF;
+  uint8_t hi = val >> 8;
+  push_to_stack_d8(hi);
+  push_to_stack_d8(lo);
+}
+
+uint8_t Environment::pop_from_stack_d8() {
+  return get_mem(cpu.reg_sp++);
+}
+
+uint16_t Environment::pop_from_stack_d16() {
+  uint8_t lo = pop_from_stack_d8();
+  uint8_t hi = pop_from_stack_d8();
+  return lo | (hi << 8);
+}
+
+void Environment::handle_timer_counter(uint8_t dur) {
+  uint8_t tac = get_mem(ADDR_TAC);
+  bool t_start = ISBITN(tac, 2);
+
+  if (!t_start) return;
+
+  uint8_t hz_mode = tac & 0b11;
+  uint16_t cycles;
+  switch (hz_mode) {
+    case 0b00:
+      cycles = 0x400;
+      break;
+    case 0b01:
+      cycles = 0x10;
+      break;
+    case 0b10:
+      cycles = 0x40;
+      break;
+    case 0b11:
+      cycles = 0x100;
+      break;
+    default:
+      ERR(printf("Unknown TAC clock input mode from TAC: 0x%x", tac));
+      exit(EXIT_FAILURE);
+  }
+
+  if (t_tima + dur >= cycles) {
+    if (get_mem(ADDR_TIMA) == 0xFF) {
+      // INT 50 Timer Interrupt.
+      set_mem(ADDR_IF, get_mem(ADDR_IF) | 0b001);
+    }
+
+    mem[ADDR_TIMA]++;
+  }
+
+  t_tima = (t_tima + dur) % cycles;
+}
+
+void Environment::handle_interrupt() {
+
 }
 
 void Environment::op_bit_n_d8(uint8_t word, uint8_t *dur, unsigned int n) {
@@ -144,10 +221,16 @@ void Environment::op_rr_n(uint8_t *reg, uint8_t *dur) {
 void Environment::run() {
   uint64_t cycle = 0;
   for (;;) {
+#ifdef DEBUG
+    if (dbg.should_stop()) {
+      dbg.prompt();
+    }
+#endif
+
     uint8_t cmd = read_next();
     uint8_t dur = 0;
 
-    // printf("CMD 0x%.2x @ 0x%.2x (%d) CYCLE %lu\n", cmd, cpu.reg_pc - 1, cpu.reg_pc - 1, cycle);
+    LOG_DEBUG(printf("CMD 0x%.2x @ 0x%.2x (%d) CYCLE %lu\n", cmd, cpu.reg_pc - 1, cpu.reg_pc - 1, cycle));
 
     if (cmd == 0x00) { // NOP | 1  4 | - - - -
       dur = 4;
@@ -238,8 +321,15 @@ void Environment::run() {
       cpu.reg_d = read_next();
       dur = 8;
     }
-    // else if (cmd == 0x17) { // RLA | 1  4 | 0 0 0 C
-    // }
+    else if (cmd == 0x17) { // RLA | 1  4 | 0 0 0 C
+      set_carry_flag(ISBITN(cpu.reg_a, 7));
+
+      cpu.reg_a = rotate_left(cpu.reg_a);
+      set_zero_flag(cpu.reg_a == 0);
+      set_substract_flag(false);
+      set_half_carry_flag(false);
+      dur = 4;
+    }
     // else if (cmd == 0x18) { // JR r8 | 2  12 | - - - -
     // }
     // else if (cmd == 0x19) { // ADD HL,DE | 1  8 | - 0 H C
@@ -303,8 +393,15 @@ void Environment::run() {
     }
     // else if (cmd == 0x27) { // DAA | 1  4 | Z - 0 C
     // }
-    // else if (cmd == 0x28) { // JR Z,r8 | 2  12/8 | - - - -
-    // }
+    else if (cmd == 0x28) { // JR Z,r8 | 2  12/8 | - - - -
+      dur = 8;
+      char offset = (char) read_next();
+
+      if (ISBITN(cpu.reg_f, BITFZ)) {
+        dur = 12;
+        cpu.reg_pc += offset;
+      }
+    }
     // else if (cmd == 0x29) { // ADD HL,HL | 1  8 | - 0 H C
     // }
     else if (cmd == 0x2A) { // LD A,(HL+) | 1  8 | - - - -
@@ -584,8 +681,10 @@ void Environment::run() {
     // }
     // else if (cmd == 0x76) { // HALT | 1  4 | - - - -
     // }
-    // else if (cmd == 0x77) { // LD (HL),A | 1  8 | - - - -
-    // }
+    else if (cmd == 0x77) { // LD (HL),A | 1  8 | - - - -
+      set_mem(cpu.hl(), cpu.reg_a);
+      dur = 8;
+    }
     else if (cmd == 0x78) { // LD A,B | 1  4 | - - - -
       cpu.reg_a = cpu.reg_b;
       dur = 4;
@@ -755,16 +854,20 @@ void Environment::run() {
     // }
     // else if (cmd == 0xC0) { // RET NZ | 1  20/8 | - - - -
     // }
-    // else if (cmd == 0xC1) { // POP BC | 1  12 | - - - -
-    // }
+    else if (cmd == 0xC1) { // POP BC | 1  12 | - - - -
+      dur = 12;
+      cpu.set_bc(pop_from_stack_d16());
+    }
     // else if (cmd == 0xC2) { // JP NZ,a16 | 3  16/12 | - - - -
     // }
     // else if (cmd == 0xC3) { // JP a16 | 3  16 | - - - -
     // }
     // else if (cmd == 0xC4) { // CALL NZ,a16 | 3  24/12 | - - - -
     // }
-    // else if (cmd == 0xC5) { // PUSH BC | 1  16 | - - - -
-    // }
+    else if (cmd == 0xC5) { // PUSH BC | 1  16 | - - - -
+      push_to_stack_d16(cpu.bc());
+      dur = 16;
+    }
     // else if (cmd == 0xC6) { // ADD A,d8 | 2  8 | Z 0 H C
     // }
     // else if (cmd == 0xC7) { // RST 00H | 1  16 | - - - -
@@ -1399,8 +1502,12 @@ void Environment::run() {
     }
     // else if (cmd == 0xCC) { // CALL Z,a16 | 3  24/12 | - - - -
     // }
-    // else if (cmd == 0xCD) { // CALL a16 | 3  24 | - - - -
-    // }
+    else if (cmd == 0xCD) { // CALL a16 | 3  24 | - - - -
+      push_to_stack_d16(cpu.reg_pc);
+      uint16_t addr = read_next_hl();
+      cpu.reg_pc = addr;
+      dur = 24;
+    }
     // else if (cmd == 0xCE) { // ADC A,d8 | 2  8 | Z 0 H C
     // }
     // else if (cmd == 0xCF) { // RST 08H | 1  16 | - - - -
@@ -1431,8 +1538,11 @@ void Environment::run() {
     // }
     // else if (cmd == 0xDF) { // RST 18H | 1  16 | - - - -
     // }
-    // else if (cmd == 0xE0) { // LDH (a8),A | 2  12 | - - - -
-    // }
+    else if (cmd == 0xE0) { // LDH (a8),A | 2  12 | - - - -
+      dur = 12;
+      uint8_t addr = 0xFF00 | read_next();
+      set_mem(addr, cpu.reg_a);
+    }
     // else if (cmd == 0xE1) { // POP HL | 1  12 | - - - -
     // }
     else if (cmd == 0xE2) { // LD (C),A | 2  8 | - - - -
@@ -1487,8 +1597,19 @@ void Environment::run() {
       break;
     }
 
-    // cpu.dump_registers();
-    // cout << "Duration: " << (int) dur << endl;
+    LOG_INFO(cpu.dump_registers());
+    LOG_NOTICE(cout << "Duration: " << (int) dur << endl);
+
+    t += dur;
+
+    // Divider register handler.
+    if (t_div + dur >= 0x100) {
+      mem[ADDR_DIV]++;
+    }
+    t_div += dur;
+
+    // Timer counter handler.
+    handle_timer_counter(dur);
 
     cycle++;
   }

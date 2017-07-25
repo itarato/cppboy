@@ -3,6 +3,7 @@
 #include <string>
 #include "environment.h"
 #include "tests.h"
+#include "defines.h"
 
 using namespace std;
 
