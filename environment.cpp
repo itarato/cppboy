@@ -4,7 +4,7 @@
 
 using namespace std;
 
-Environment::Environment(unique_ptr<uint8_t> && _rom) : cpu({}), rom(move(_rom)), dbg({}) {
+Environment::Environment(unique_ptr<uint8_t> && _rom) : cpu({}), rom(move(_rom)), dbg((mem)) {
   cout << "Environment has been created" << endl;
 }
 
@@ -228,6 +228,10 @@ void Environment::run() {
       if (dbg.should_stop(cycle, cmd, cpu.reg_pc)) {
         for (;;) {
           if (dbg.prompt()) break;
+          if (dbg.should_dump()) {
+            printf("CMD 0x%.2x @ 0x%.2x (%d) CYCLE %lu\n", cmd, cpu.reg_pc - 1, cpu.reg_pc - 1, cycle);
+            cpu.dump_registers();
+          }
         }
       }
     #endif
@@ -1599,7 +1603,6 @@ void Environment::run() {
       break;
     }
 
-    LOG_INFO(cpu.dump_registers());
     LOG_NOTICE(cout << "Duration: " << (int) dur << endl);
 
     t += dur;

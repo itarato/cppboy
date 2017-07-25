@@ -26,7 +26,7 @@
 #define BITFH 5
 #define BITFC 4
 
-#define LOG_LEVEL_DEBUG
+// #define LOG_LEVEL_DEBUG
 // #define LOG_LEVEL_INFO
 // #define LOG_LEVEL_NOTICE
 
