@@ -1,6 +1,9 @@
 #include "util.h"
 #include <cstdio>
+#include <iostream>
 #include "defines.h"
+
+using namespace std;
 
 uint8_t rotate_left(uint8_t val) {
   return val << 1 | BITN(val, 7);

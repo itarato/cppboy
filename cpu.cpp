@@ -1,5 +1,6 @@
 #include "cpu.h"
 #include <iostream>
+#include "util.h"
 
 using namespace std;
 
@@ -50,13 +51,3 @@ void CPU::set_af(uint16_t val) { set_reg_pair(&reg_a, &reg_f, val); }
 void CPU::set_bc(uint16_t val) { set_reg_pair(&reg_b, &reg_c, val); }
 void CPU::set_de(uint16_t val) { set_reg_pair(&reg_d, &reg_e, val); }
 void CPU::set_hl(uint16_t val) { set_reg_pair(&reg_h, &reg_l, val); }
-
-template <typename T>
-void dump_bin(T val) {
-  size_t len = sizeof(T);
-
-  for (int i = len * 8 - 1; i >= 0; i--) {
-    cout << ((1 << i) & val ? 1 : 0);
-    if (i == 4) cout << '_';
-  }
-}

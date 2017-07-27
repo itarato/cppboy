@@ -1,4 +1,5 @@
 #include "debugger.h"
+#include "util.h"
 #include <string>
 #include <iostream>
 #include <sstream>
@@ -20,6 +21,8 @@ bool Debugger::prompt() {
   getline(cin, s);
 
   DebugCommand command = parse_command(s);
+  uint16_t addr;
+  uint8_t val;
   switch (command) {
     case Quit:
       exit(EXIT_SUCCESS);
@@ -44,8 +47,11 @@ bool Debugger::prompt() {
       return false;
 
     case MemRead:
-      uint16_t addr = parse_param<uint16_t>(s, 1);
-      printf("M[0x%x]\n", addr);
+      addr = parse_param<uint16_t>(s, 1);
+      printf("M[0x%x] => 0b", addr);
+      val = ptr_env_mem[addr];
+      dump_bin(val);
+      printf(" 0x%x %d\n", val, val);
       return false;
 
     default:

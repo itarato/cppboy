@@ -43,6 +43,3 @@ public:
   void set_de(uint16_t);
   void set_hl(uint16_t);
 };
-
-template <typename T>
-void dump_bin(T);
