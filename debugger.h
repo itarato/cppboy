@@ -27,7 +27,7 @@ private:
   uint8_t *ptr_env_mem;
 
   template<typename T>
-  T parse_param(string, size_t);
+  T parse_param(string, size_t, bool as_hex = false);
 
   size_t cond_cycle_stop;
   bool   cond_step_by_step;

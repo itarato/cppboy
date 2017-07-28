@@ -47,7 +47,7 @@ bool Debugger::prompt() {
       return false;
 
     case MemRead:
-      addr = parse_param<uint16_t>(s, 1);
+      addr = parse_param<uint16_t>(s, 1, true);
       printf("M[0x%x] => 0b", addr);
       val = ptr_env_mem[addr];
       dump_bin(val);
@@ -107,7 +107,7 @@ DebugCommand Debugger::parse_command(string in) {
 }
 
 template<typename T>
-T Debugger::parse_param(string in, size_t idx) {
+T Debugger::parse_param(string in, size_t idx, bool as_hex) {
   istringstream iss(in);
 
   for (int i = 0; i < idx; i++) {
@@ -116,6 +116,10 @@ T Debugger::parse_param(string in, size_t idx) {
   }
 
   T out;
-  iss >> out;
+  if (as_hex) {
+    iss >> hex >> out;
+  } else {
+    iss >> out;
+  }
   return out;
 }
