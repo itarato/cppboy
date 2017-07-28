@@ -12,6 +12,7 @@ enum DebugCommand {
   Step,
   Dump,
   MemRead,
+  PC,
 };
 
 class Debugger {
@@ -29,8 +30,9 @@ private:
   template<typename T>
   T parse_param(string, size_t, bool as_hex = false);
 
-  size_t cond_cycle_stop;
-  bool   cond_step_by_step;
-  size_t cond_step_counter;
-  bool   cond_dump;
+  size_t   cond_cycle_stop;
+  bool     cond_step_by_step;
+  size_t   cond_step_counter;
+  bool     cond_dump;
+  uint16_t cond_pc;
 };

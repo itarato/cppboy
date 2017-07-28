@@ -221,21 +221,24 @@ void Environment::op_rr_n(uint8_t *reg, uint8_t *dur) {
 
 void Environment::run() {
   uint64_t cycle = 0;
-  for (;;) {
-    uint8_t cmd = read_next();
-    uint8_t dur = 0;
+  uint8_t cmd = 0;
+  uint8_t dur = 0;
 
+  for (;;) {
     #ifdef DEBUG
       if (dbg.should_stop(cycle, cmd, cpu.reg_pc)) {
         for (;;) {
           if (dbg.prompt()) break;
           if (dbg.should_dump()) {
-            printf("CMD 0x%.2x @ 0x%.2x (%d) CYCLE %lu\n", cmd, cpu.reg_pc - 1, cpu.reg_pc - 1, cycle);
+            printf("CMD 0x%.2x @ 0x%.2x (%d) CYCLE %lu\n", cmd, cpu.reg_pc, cpu.reg_pc, cycle);
             cpu.dump_registers();
           }
         }
       }
     #endif
+
+    cmd = read_next();
+    dur = 0;
 
     LOG_DEBUG(printf("CMD 0x%.2x @ 0x%.2x (%d) CYCLE %lu\n", cmd, cpu.reg_pc - 1, cpu.reg_pc - 1, cycle));
 
@@ -1547,13 +1550,13 @@ void Environment::run() {
     // }
     else if (cmd == 0xE0) { // LDH (a8),A | 2  12 | - - - -
       dur = 12;
-      uint8_t addr = 0xFF00 | read_next();
+      uint16_t addr = 0xFF00 | read_next();
       set_mem(addr, cpu.reg_a);
     }
     // else if (cmd == 0xE1) { // POP HL | 1  12 | - - - -
     // }
     else if (cmd == 0xE2) { // LD (C),A | 2  8 | - - - -
-      uint8_t addr = 0xFF00 | cpu.reg_c;
+      uint16_t addr = 0xFF00 | cpu.reg_c;
       set_mem(addr, cpu.reg_a);
       dur = 8;
     }

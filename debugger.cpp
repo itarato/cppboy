@@ -29,6 +29,7 @@ bool Debugger::prompt() {
       exit(EXIT_SUCCESS);
 
     case Cycle:
+    cond_step_by_step = false;
       cond_cycle_stop = parse_param<size_t>(s, 1);
       cout << "Cycle stop set at " << cond_cycle_stop << endl;
       return false;
@@ -39,13 +40,19 @@ bool Debugger::prompt() {
       return false;
 
     case Step:
+    cond_step_by_step = false;
       cond_step_counter = parse_param<size_t>(s, 1);
       cout << "Step " << cond_step_counter << endl;
-      return false;
+      return true;
 
     case Dump:
       cond_dump = true;
       return false;
+
+    case PC:
+    cond_step_by_step = false;
+      cond_pc = parse_param<uint16_t>(s, 1, true);
+      return true;
 
     case MemRead:
       addr = parse_param<uint16_t>(s, 1, true);
@@ -61,17 +68,21 @@ bool Debugger::prompt() {
 }
 
 bool Debugger::should_stop(uint64_t cycle, uint8_t op, uint16_t pc) {
+  if (cond_step_by_step) return true;
+
   if (cond_cycle_stop == cycle) {
+    cond_step_by_step = true;
     return true;
   }
-
-  if (cond_step_by_step) {
+  if (cond_pc == pc) {
+    cond_step_by_step = true;
     return true;
   }
 
   if (cond_step_counter > 0) {
     cond_step_counter--;
     if (cond_step_counter == 0) {
+      cond_step_by_step = true;
       return true;
     }
   }
@@ -102,6 +113,8 @@ DebugCommand Debugger::parse_command(string in) {
     return Dump;
   } else if (command == "m" || command == "mem") {
     return MemRead;
+  } else if (command == "pc") {
+    return PC;
   } else {
     return Nop;
   }
