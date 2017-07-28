@@ -50,7 +50,7 @@ uint8_t * Environment::get_mem_ptr(uint16_t ptr) {
 }
 
 void Environment::set_mem(uint16_t addr, uint8_t val) {
-  cout << "Write to: " << addr << " = " << (int) val << endl;
+  LOG_DEBUG(printf("+MEM[0x%x] = 0x%x\n", addr, val));
   if (0xC000 <= addr && addr < 0xDE00) {
     uint16_t offset = addr - 0xC000;
     mem[addr] = mem[0xE000 + offset] = val;

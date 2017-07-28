@@ -14,9 +14,12 @@
 #define ADDR_TIMA 0xFF05 // RW
 #define ADDR_IF   0xFF0F
 
-#define SHELL_TXT_ERROR "\033[1m\033[101m "
-#define SHELL_TXT_RESET_NL " \033[0m\n"
+#define SHELL_TXT_ERROR     "\033[1m\033[101m "
+#define SHELL_TXT_RESET     " \033[0m"
+#define SHELL_TXT_RESET_NL  " \033[0m\n"
+#define SHELL_TXT_BOLD      "\033[1m"
 #define ERR(x) printf(SHELL_TXT_ERROR); x; printf(SHELL_TXT_RESET_NL)
+#define BOLD(x) printf(SHELL_TXT_BOLD); x; printf(SHELL_TXT_RESET)
 
 #define BITN(v, n) (((v) >> (n)) & 0b1)
 #define ISBITN(v, n) (BITN(v, n) == 1)
@@ -26,8 +29,8 @@
 #define BITFH 5
 #define BITFC 4
 
-// #define LOG_LEVEL_DEBUG
-// #define LOG_LEVEL_INFO
+#define LOG_LEVEL_DEBUG
+#define LOG_LEVEL_INFO
 // #define LOG_LEVEL_NOTICE
 
 #define DEBUG

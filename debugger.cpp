@@ -1,5 +1,6 @@
 #include "debugger.h"
 #include "util.h"
+#include "defines.h"
 #include <string>
 #include <iostream>
 #include <sstream>
@@ -17,7 +18,7 @@ Debugger::Debugger(uint8_t *_ptr_env_mem) :
 
 bool Debugger::prompt() {
   string s;
-  cout << "DBG>> ";
+  BOLD(cout << "DBG>> ");
   getline(cin, s);
 
   DebugCommand command = parse_command(s);
