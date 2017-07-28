@@ -230,7 +230,7 @@ void Environment::run() {
         for (;;) {
           if (dbg.prompt()) break;
           if (dbg.should_dump()) {
-            printf("CMD 0x%.2x @ 0x%.2x (%d) CYCLE %lu\n", cmd, cpu.reg_pc, cpu.reg_pc, cycle);
+            printf("CMD 0x%.2x @ 0x%.2x (%d) CYCLE %llu\n", cmd, cpu.reg_pc, cpu.reg_pc, cycle);
             cpu.dump_registers();
           }
         }
@@ -240,7 +240,7 @@ void Environment::run() {
     cmd = read_next();
     dur = 0;
 
-    LOG_DEBUG(printf("CMD 0x%.2x @ 0x%.2x (%d) CYCLE %lu\n", cmd, cpu.reg_pc - 1, cpu.reg_pc - 1, cycle));
+    LOG_DEBUG(printf("CMD 0x%.2x @ 0x%.2x (%d) CYCLE %llu\n", cmd, cpu.reg_pc - 1, cpu.reg_pc - 1, cycle));
 
     if (cmd == 0x00) { // NOP | 1  4 | - - - -
       dur = 4;
